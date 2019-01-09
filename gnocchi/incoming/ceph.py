@@ -93,7 +93,6 @@ class CephStorage(incoming.IncomingDriver):
             data_by_sack[sack]['measures'].append(
                 self._encode_measures(measures))
 
-        ops = []
         for sack, data in data_by_sack.items():
             with rados.WriteOpCtx() as op:
                 # NOTE(sileht): list all objects in a pool is too slow with
@@ -104,11 +103,8 @@ class CephStorage(incoming.IncomingDriver):
                 # it doesn't # allow to configure the locking behavior)
                 self.ioctx.set_omap(op, tuple(data['names']),
                                     tuple(data['measures']))
-                ops.append(self.ioctx.operate_aio_write_op(
-                    op, str(sack), flags=self.OMAP_WRITE_FLAGS))
-        while ops:
-            op = ops.pop()
-            op.wait_for_complete()
+                self.ioctx.operate_write_op(op, sack,
+                                            flags=self.OMAP_WRITE_FLAGS)
 
     def _build_report(self, details):
         metrics = set()
