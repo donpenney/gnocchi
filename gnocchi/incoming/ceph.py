@@ -103,7 +103,7 @@ class CephStorage(incoming.IncomingDriver):
                 # it doesn't # allow to configure the locking behavior)
                 self.ioctx.set_omap(op, tuple(data['names']),
                                     tuple(data['measures']))
-                self.ioctx.operate_write_op(op, sack,
+                self.ioctx.operate_write_op(op, str(sack),
                                             flags=self.OMAP_WRITE_FLAGS)
 
     def _build_report(self, details):
